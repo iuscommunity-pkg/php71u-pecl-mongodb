@@ -11,11 +11,12 @@
 #
 # Please, preserve the changelog entries
 #
-%global with_zts   0%{?__ztsphp:1}
 %global pecl_name  mongodb
 # After 40-smbclient.ini, see https://jira.mongodb.org/browse/PHPC-658
 %global ini_name   50-%{pecl_name}.ini
 %global php        php71u
+
+%bcond_without zts
 
 Summary:        MongoDB driver for PHP
 Name:           %{php}-pecl-%{pecl_name}
@@ -86,7 +87,7 @@ if test "x${extver}" != "x%{version}%{?prever:%{prever}}"; then
 fi
 popd
 
-%if %{with_zts}
+%if %{with zts}
 # Duplicate source tree for NTS / ZTS build
 cp -pr NTS ZTS
 %endif
@@ -123,7 +124,7 @@ pushd NTS
 peclbuild php
 popd
 
-%if %{with_zts}
+%if %{with zts}
 pushd ZTS
 peclbuild zts-php
 popd
@@ -140,7 +141,7 @@ install -D -m 644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
 # Install XML package description
 install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 
-%if %{with_zts}
+%if %{with zts}
 make -C ZTS \
      install INSTALL_ROOT=%{buildroot}
 
@@ -162,7 +163,7 @@ OPT="-n"
     --define extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
     --modules | grep %{pecl_name}
 
-%if %{with_zts}
+%if %{with zts}
 : Minimal load test for ZTS extension
 %{__ztsphp} $OPT \
     --define extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so \
@@ -188,7 +189,7 @@ fi
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
-%if %{with_zts}
+%if %{with zts}
 %config(noreplace) %{php_ztsinidir}/%{ini_name}
 %{php_ztsextdir}/%{pecl_name}.so
 %endif
@@ -199,6 +200,7 @@ fi
 - Port from Fedora to IUS
 - Install package.xml as %%{pecl_name}.xml, not %%{name}.xml
 - Re-add scriptlets (file triggers not yet available in EL)
+- Use modern conditional for zts
 
 * Mon Mar 20 2017 Remi Collet <remi@remirepo.net> - 1.2.8-1
 - Update to 1.2.8 (no change)
