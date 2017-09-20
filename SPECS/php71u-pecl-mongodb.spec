@@ -22,20 +22,20 @@
 
 Summary:        MongoDB driver for PHP
 Name:           %{php}-pecl-%{pecl_name}
-Version:        1.2.10
+Version:        1.3.0
 Release:        1.ius%{?dist}
 License:        ASL 2.0
 Group:          Development/Languages
 URL:            http://pecl.php.net/package/%{pecl_name}
-Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
+Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
 BuildRequires:  %{php}-devel
 BuildRequires:  pecl >= 1.10.0
 BuildRequires:  %{php}-json
 BuildRequires:  cyrus-sasl-devel
 BuildRequires:  openssl-devel
-%{?with_libbson:BuildRequires: pkgconfig(libbson-1.0) >= 1.5}
-%{?with_libmongoc:BuildRequires: pkgconfig(libmongoc-1.0) >= 1.5}
+%{?with_libbson:BuildRequires: pkgconfig(libbson-1.0) >= 1.8.0}
+%{?with_libmongoc:BuildRequires: pkgconfig(libmongoc-1.0) >= 1.8.0}
 
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
@@ -72,22 +72,19 @@ components necessary to build a fully-functional MongoDB driver.
 
 %prep
 %setup -q -c
-mv %{pecl_name}-%{version}%{?prever} NTS
+mv %{pecl_name}-%{version} NTS
 
 # Don't install/register tests and License
 sed -e 's/role="test"/role="src"/' \
     -e '/LICENSE/s/role="doc"/role="src"/' \
     -i package.xml
 
-pushd NTS
-
 # Sanity check, really often broken
-extver=$(sed -n '/#define PHP_MONGODB_VERSION/{s/.* "//;s/".*$//;p}' php_phongo.h)
-if test "x${extver}" != "x%{version}%{?prever:%{prever}}"; then
-   : Error: Upstream extension version is ${extver}, expecting %{version}%{?prever:%{prever}}.
+extver=$(sed -n '/#define PHP_MONGODB_VERSION/{s/.* "//;s/".*$//;p}' NTS/php_phongo.h)
+if test "x${extver}" != "x%{version}"; then
+   : Error: Upstream extension version is ${extver}, expecting %{version}.
    exit 1
 fi
-popd
 
 %if %{with zts}
 # Duplicate source tree for NTS / ZTS build
@@ -134,8 +131,7 @@ popd
 
 
 %install
-make -C NTS \
-     install INSTALL_ROOT=%{buildroot}
+make -C NTS install INSTALL_ROOT=%{buildroot}
 
 # install config file
 install -D -m 644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
@@ -144,8 +140,7 @@ install -D -m 644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
 install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 
 %if %{with zts}
-make -C ZTS \
-     install INSTALL_ROOT=%{buildroot}
+make -C ZTS install INSTALL_ROOT=%{buildroot}
 
 install -D -m 644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
@@ -198,6 +193,9 @@ fi
 
 
 %changelog
+* Wed Sep 20 2017 Carl George <carl@george.computer> - 1.3.0-1.ius
+- Latest upstream
+
 * Mon Sep 11 2017 Carl George <carl@george.computer> - 1.2.10-1.ius
 - Latest upstream
 
