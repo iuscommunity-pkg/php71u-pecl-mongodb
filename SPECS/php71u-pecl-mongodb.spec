@@ -22,7 +22,7 @@
 
 Summary:        MongoDB driver for PHP
 Name:           %{php}-pecl-%{pecl_name}
-Version:        1.3.0
+Version:        1.3.1
 Release:        1.ius%{?dist}
 License:        ASL 2.0
 Group:          Development/Languages
@@ -193,6 +193,9 @@ fi
 
 
 %changelog
+* Tue Oct 17 2017 Ben Harper <ben.harper@rackspace.com> - 1.3.1-1.ius
+- Latest upstream
+
 * Wed Sep 20 2017 Carl George <carl@george.computer> - 1.3.0-1.ius
 - Latest upstream
 
