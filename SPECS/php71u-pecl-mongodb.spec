@@ -23,26 +23,29 @@
 Summary:        MongoDB driver for PHP
 Name:           %{php}-pecl-%{pecl_name}
 Version:        1.3.4
-Release:        1.ius%{?dist}
+Release:        2.ius%{?dist}
 License:        ASL 2.0
 Group:          Development/Languages
 URL:            https://pecl.php.net/package/%{pecl_name}
 Source0:        https://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
 BuildRequires:  %{php}-devel
-BuildRequires:  pecl >= 1.10.0
 BuildRequires:  %{php}-json
 BuildRequires:  cyrus-sasl-devel
 BuildRequires:  openssl-devel
 %{?with_libbson:BuildRequires: pkgconfig(libbson-1.0) >= 1.8.0}
 %{?with_libmongoc:BuildRequires: pkgconfig(libmongoc-1.0) >= 1.8.0}
 
+BuildRequires:  pear1u
+# explicitly require pear dependencies to avoid conflicts
+BuildRequires:  %{php}-cli
+BuildRequires:  %{php}-common
+BuildRequires:  %{php}-process
+BuildRequires:  %{php}-xml
+
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 Requires:       %{php}-json%{?_isa}
-
-Requires(post): pecl >= 1.10.0
-Requires(postun): pecl >= 1.10.0
 
 # provide the stock name
 Provides:       php-pecl-%{pecl_name} = %{version}
@@ -165,12 +168,20 @@ OPT="-n"
 %endif
 
 
-%post
-%{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+%triggerin -- pear1u
+if [ -x %{__pecl} ]; then
+    %{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+fi
+
+
+%posttrans
+if [ -x %{__pecl} ]; then
+    %{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+fi
 
 
 %postun
-if [ $1 -eq 0 ]; then
+if [ $1 -eq 0 -a -x %{__pecl} ]; then
     %{pecl_uninstall} %{pecl_name} >/dev/null || :
 fi
 
@@ -190,6 +201,9 @@ fi
 
 
 %changelog
+* Wed Jan 31 2018 Carl George <carl@george.computer> - 1.3.4-2.ius
+- Remove pear requirement and update scriptlets (adapted from remirepo)
+
 * Mon Dec 04 2017 Carl George <carl@george.computer> - 1.3.4-1.ius
 - Latest upstream
 
