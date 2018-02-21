@@ -22,7 +22,7 @@
 
 Summary:        MongoDB driver for PHP
 Name:           %{php}-pecl-%{pecl_name}
-Version:        1.4.0
+Version:        1.4.1
 Release:        1.ius%{?dist}
 License:        ASL 2.0
 Group:          Development/Languages
@@ -202,6 +202,9 @@ fi
 
 
 %changelog
+* Wed Feb 21 2018 Ben Harper <ben.harper@rackspace.com> - 1.4.1-1.ius
+- Latest upstream
+
 * Fri Feb 09 2018 Ben Harper <ben.harper@rackspace.com> - 1.4.0-1.ius
 - Latest upstream
 - update libbson and libmongoc version requirements from Fedora:
